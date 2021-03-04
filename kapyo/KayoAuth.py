@@ -16,6 +16,18 @@ class AuthSession():
     def token_expires_at(self):
         return self.token_created_at + datetime.timedelta(seconds=self.token_expires_in)
 
+    def create_credentials_file(self,path):
+        try:
+            credentials_json = {
+                "CLIENTID":"Your Client Id Goes Here",
+                "USERNAME":"yourkayologin@domain.com",
+                "PASSWORD":"Y0urP@s5w0rd"
+            }
+            with open(path, 'w+') as credentials_file:
+                json.dump(credentials_json, credentials_file)
+        except:
+            "Something went wrong with creating the credentials file"
+
 
     def print_credentials(self):
         print(self.username)
@@ -88,6 +100,7 @@ class AuthSession():
 
 if __name__ == "__main__":
     kayo_auth = AuthSession()
+    kayo_auth.create_credentials_file("../CREDENTIALS.json")
     kayo_auth.import_credentials("../CREDENTIALS.json")
     kayo_auth.print_credentials()
     kayo_auth.login()
