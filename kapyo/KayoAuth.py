@@ -117,12 +117,20 @@ class KayoAuthException(Exception):
         super().__init__(self.message)
 
 if __name__ == "__main__":
+    ## Standard Flow for Reference
+    #Create a Instance
     kayo_auth = AuthSession()
-    print(kayo_auth.token)
-    # kayo_auth.create_credentials_file("../CREDENTIALS.json")
-    # kayo_auth.import_credentials("../CREDENTIALS.json")
-    # kayo_auth.print_credentials()
-    # print(kayo_auth.is_token_expired())
-    # kayo_auth.login()
-    # kayo_auth.reset_token()
-    # print(kayo_auth.is_token_expired())
+    
+    #Import a Credentials File or Edit the default Credentials File manually
+    kayo_auth.create_credentials_file("../CREDENTIALS.json")
+    kayo_auth.import_credentials("../CREDENTIALS.json")
+    kayo_auth.print_credentials()
+
+    #Login to Kayo using your Credentials
+    kayo_auth.login()
+
+    #Check if the Token has expired
+    kayo_auth.is_token_expired()
+
+    #If its Expired then refresh the token
+    kayo_auth.reset_token()
