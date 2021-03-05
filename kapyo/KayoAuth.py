@@ -2,24 +2,32 @@ import json
 import requests
 import datetime
 
+#Auth0 Tentant client ID used by Kayo
+CLIENTID = "qjmv9ZvaMDS9jGvHOxVfImLgQ3G5NrT2"
+
 class AuthSession():
     def __init__(self):
-        username: str
-        password: str
-        client_id: str
-        token: str
-        token_expires_in: int
-        refresh_token: str
-        profile: str
-        token_created_at: datetime.datetime
+        self.username: str = None
+        self.password: str = None
+        self.token: str = None
+        self.token_expires_in: int = 0
+        self.refresh_token: str = None
+        self.token_created_at: datetime.datetime = datetime.datetime.now()
 
     def token_expires_at(self):
         return self.token_created_at + datetime.timedelta(seconds=self.token_expires_in)
 
+
+    def is_token_expired(self):
+        if self.token_expires_at():
+            # If 30seconds until token expires, its time to refresh it
+            return (datetime.datetime.now()+ datetime.timedelta(seconds=30)) > self.token_expires_at()
+        else:
+            return True
+
     def create_credentials_file(self,path):
         try:
             credentials_json = {
-                "CLIENTID":"Your Client Id Goes Here",
                 "USERNAME":"yourkayologin@domain.com",
                 "PASSWORD":"Y0urP@s5w0rd"
             }
@@ -32,7 +40,6 @@ class AuthSession():
     def print_credentials(self):
         print(self.username)
         print(self.password)
-        print(self.client_id)
 
     def import_credentials(self, path):
         try:
@@ -40,7 +47,6 @@ class AuthSession():
                 data = json.load(credentials_file)
                 self.username = data['USERNAME']
                 self.password = data['PASSWORD']
-                self.client_id = data['CLIENTID']
         except Exception as e:
             print("A error occured when importing credentials")
 
@@ -52,7 +58,7 @@ class AuthSession():
                           "\"grant_type\":\"http://auth0.com/oauth/grant-type/password-realm\",\n"+\
                           "\"scope\": \"openid offline_access\", \n"+\
                           "\"realm\": \"prod-martian-database\",\n"+\
-                          "\"client_id\": \""+self.client_id+"\",\n"+\
+                          "\"client_id\": \""+CLIENTID+"\",\n"+\
                           "\"username\": \""+ self.username+"\",\n"+\
                           "\"password\": \""+ self.password+"\"\n}"
         requestHeaders={
@@ -63,21 +69,25 @@ class AuthSession():
             print("Contacting Kayo Servers with Login Details")
             r = requests.request("POST", requestUrl, data=requestJson, headers=requestHeaders)
             response_dict = json.loads(r.text)
-            self.token = response_dict["access_token"]
-            self.token_expires_in = response_dict["expires_in"]
-            self.refresh_token = response_dict["refresh_token"]
-            self.token_created_at = datetime.datetime.now()
-            print("Login Successful")
+            if (response_dict.get("access_token",None) is None):
+                raise KayoAuthException
+            else:
+                self.token = response_dict["access_token"]
+                self.token_expires_in = response_dict["expires_in"]
+                self.refresh_token = response_dict["refresh_token"]
+                self.token_created_at = datetime.datetime.now()
+                print("Login Successful")
+            return True
         except Exception as e:
-            print("Response did not contain an access token so something went wrong (Probably Username or Password)")
-            print(response_dict)
+            print("AuthSession.login: {}".format(e.message))
+            return False
 
     def reset_token(self):
         #use the refresh token to update the Bearer Token
         requestUrl = "https://auth.kayosports.com.au/oauth/token"
         requestJson = "{\n"+\
                           " \"redirectUri\":\"https://kayosports.com.au/login\",\n"+\
-                          "\"client_id\": \""+self.client_id+"\",\n"+\
+                          "\"client_id\": \""+CLIENTID+"\",\n"+\
                           "\"grant_type\":\"refresh_token\",\n"+\
                           "\"refresh_token\": \""+self.refresh_token+"\" \n}"
         requestHeaders={
@@ -94,14 +104,25 @@ class AuthSession():
             self.token_expires_in = response_dict["expires_in"]
             self.token_created_at = datetime.datetime.now()
             print("Access Token Refreshed")
+            return True
         except:
             print("Response did not contain an access token so something went wrong (Probably Provided Refresh token)")
+            return False
 
+
+class KayoAuthException(Exception):
+    """Raised When the Authentication Session Failed to Handle Login Attempt"""
+    def __init__(self, message="The Authentication Session failed to Login"):
+        self.message = message
+        super().__init__(self.message)
 
 if __name__ == "__main__":
     kayo_auth = AuthSession()
-    kayo_auth.create_credentials_file("../CREDENTIALS.json")
-    kayo_auth.import_credentials("../CREDENTIALS.json")
-    kayo_auth.print_credentials()
-    kayo_auth.login()
-    kayo_auth.reset_token()
+    print(kayo_auth.token)
+    # kayo_auth.create_credentials_file("../CREDENTIALS.json")
+    # kayo_auth.import_credentials("../CREDENTIALS.json")
+    # kayo_auth.print_credentials()
+    # print(kayo_auth.is_token_expired())
+    # kayo_auth.login()
+    # kayo_auth.reset_token()
+    # print(kayo_auth.is_token_expired())
