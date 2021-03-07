@@ -29,7 +29,6 @@ class KayoProfile():
     def profile(self, profile_object):
         self.__init__(profile_object)
 
-
     def __repr__(self):
         return str(self.profile)
 
