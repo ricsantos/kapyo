@@ -36,7 +36,6 @@ class AuthSession():
         except:
             "Something went wrong with creating the credentials file"
 
-
     def print_credentials(self):
         print(self.username)
         print(self.password)
@@ -52,8 +51,8 @@ class AuthSession():
 
     def login(self):
         #Use the Username & Password to make a request to Kayo for your access token       
-        requestUrl = "https://auth.kayosports.com.au/oauth/token"
-        requestJson = "{\n"+\
+        request_url = "https://auth.kayosports.com.au/oauth/token"
+        request_json = "{\n"+\
                           " \"audience\":\"kayosports.com.au\",\n"+\
                           "\"grant_type\":\"http://auth0.com/oauth/grant-type/password-realm\",\n"+\
                           "\"scope\": \"openid offline_access\", \n"+\
@@ -61,13 +60,13 @@ class AuthSession():
                           "\"client_id\": \""+CLIENTID+"\",\n"+\
                           "\"username\": \""+ self.username+"\",\n"+\
                           "\"password\": \""+ self.password+"\"\n}"
-        requestHeaders={
+        request_headers={
                 "Content-Type": "application/json",
                 "User-Agent": "User-Agent: Mozilla/5.0 {Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, Like Gecko) Chrome/44.0.2403.89 Safari/537.36"
         }
         try:
             print("Contacting Kayo Servers with Login Details")
-            r = requests.request("POST", requestUrl, data=requestJson, headers=requestHeaders)
+            r = requests.request("POST", request_url, data=request_json, headers=request_headers)
             response_dict = json.loads(r.text)
             if (response_dict.get("access_token",None) is None):
                 raise KayoAuthException
@@ -84,20 +83,20 @@ class AuthSession():
 
     def reset_token(self):
         #use the refresh token to update the Bearer Token
-        requestUrl = "https://auth.kayosports.com.au/oauth/token"
-        requestJson = "{\n"+\
+        request_url = "https://auth.kayosports.com.au/oauth/token"
+        request_json = "{\n"+\
                           " \"redirectUri\":\"https://kayosports.com.au/login\",\n"+\
                           "\"client_id\": \""+CLIENTID+"\",\n"+\
                           "\"grant_type\":\"refresh_token\",\n"+\
                           "\"refresh_token\": \""+self.refresh_token+"\" \n}"
-        requestHeaders={
+        request_headers={
                     "Content-Type": "application/json",
                     "User-Agent": "User-Agent: Mozilla/5.0 {Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, Like Gecko) Chrome/44.0.2403.89 Safari/537.36"
                 }
         
         try:
             print("Contacting Kayo Servers with Refresh Token")
-            r = requests.request("POST", requestUrl, data=requestJson, headers=requestHeaders)
+            r = requests.request("POST", request_url, data=request_json, headers=request_headers)
             response_dict = json.loads(r.text)
             print(response_dict)
             self.token = response_dict["access_token"]
