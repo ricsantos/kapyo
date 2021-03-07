@@ -6,13 +6,25 @@ import datetime
 CLIENTID = "qjmv9ZvaMDS9jGvHOxVfImLgQ3G5NrT2"
 
 class AuthSession():
-    def __init__(self):
+    def __init__(self,username: str = None, password: str = None, credentials_path:str = None):
         self.username: str = None
         self.password: str = None
         self.token: str = None
         self.token_expires_in: int = 0
         self.refresh_token: str = None
         self.token_created_at: datetime.datetime = datetime.datetime.now()
+        #Try and login if possible
+        if (username is not None) and (password is not None):
+            self.username = username
+            self.password = password
+            self.login()
+        elif credentials_path is not None:
+            self.import_credentials(credentials_path)
+            self.login()
+        else:
+            pass
+                
+               
 
     def token_expires_at(self):
         return self.token_created_at + datetime.timedelta(seconds=self.token_expires_in)
@@ -25,11 +37,11 @@ class AuthSession():
         else:
             return True
 
-    def create_credentials_file(self,path):
+    def export_credentials_file(self,path):
         try:
             credentials_json = {
-                "USERNAME":"yourkayologin@domain.com",
-                "PASSWORD":"Y0urP@s5w0rd"
+                "USERNAME":self.username,
+                "PASSWORD":self.password
             }
             with open(path, 'w+') as credentials_file:
                 json.dump(credentials_json, credentials_file)

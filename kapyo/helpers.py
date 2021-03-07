@@ -1,5 +1,5 @@
 import time
-from auth import AuthSession, KayoAuthException
+from .auth import AuthSession, KayoAuthException
 
 """
 Helper Function used to Handle the Authorisation Flow

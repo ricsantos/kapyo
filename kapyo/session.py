@@ -1,9 +1,9 @@
 import json
 import requests
 import datetime
-from auth import AuthSession, KayoAuthException
-from interface import KayoProfile
-from helpers import validate_auth
+from .auth import AuthSession, KayoAuthException
+from .interface import KayoProfile
+from .helpers import validate_auth
 
 
 class KayoSession():
