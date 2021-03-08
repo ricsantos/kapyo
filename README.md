@@ -16,26 +16,27 @@ pip install kapyo
 import kapyo
 
 #activate a kapyo session which will automatically log you in and access your root profile
-session = kapyo.setup("Credentials_file.json")
+session = kapyo.setup("CREDENTIALS.json")
+#or session = kapyo.setup_from_login('Username', 'Password')
 
 #Check the current events available
 session.get_profile_events()
 
 #Get the manifest link for a given event id
-stream_links = session.get_stream_links(102331)
+manifest_links = session.get_stream_links(102331)
 
 #Return some hmtl which contains the player set to play the stream
-first_link = stream_link['data'][0]
+first_link = manifest_links['data'][0]
 first_link.to_iframe()
 
-#Or if you going to do something fancy you can access the uri itself
+#Or if you going to do something fancy like read it into Cv2 you can access the uri itself
 first_link.uri
 
 ```
 
 
 ## Thanks
-Much love to etopiei for his work on his [Unofficial Kayo Desktop App](https://github.com/etopiei/kayo)
+Many thanks to etopiei for his work on his [Unofficial Kayo Desktop App](https://github.com/etopiei/kayo)
 and matthuisman for doing [the hard work](https://github.com/wrxtasy/plugin.video.kayo.sports/) of documenting the Apis on which both this projects are heavily based.
 
 ## License & Obvious things

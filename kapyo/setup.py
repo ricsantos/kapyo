@@ -6,7 +6,15 @@ def setup(credentials_path):
     #Create an Authentication Session using the Credentials path
     auth_session = AuthSession(credentials_path =credentials_path)
     kayo_session= KayoSession(auth_session=auth_session)
-    kayo_session.get_profiles
+    profiles_response = kayo_session.get_profiles()
+    if profiles_response.get("success",False):
+        kayo_session.set_active_profile(profiles_response.get("data")[0])
+    return kayo_session
+
+def setup_from_login(username, password):
+    #Create an Authentication Session using the Username and Password
+    auth_session = AuthSession(username=username, password=password)
+    kayo_session= KayoSession(auth_session=auth_session)
     profiles_response = kayo_session.get_profiles()
     if profiles_response.get("success",False):
         kayo_session.set_active_profile(profiles_response.get("data")[0])
