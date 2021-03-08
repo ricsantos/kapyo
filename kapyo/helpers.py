@@ -1,4 +1,5 @@
 import time
+import requests
 from .auth import AuthSession, KayoAuthException
 
 """
@@ -45,7 +46,7 @@ def example_method(self):
     return response
 """
 def validate_auth(method):
-    def validate_auth_attempts(ref):
+    def validate_auth_attempts(ref, *args, **kwargs):
         #Attempt to validate the Authorisation session 
         attempts:int = 0
         last_except:Exception = None
@@ -64,5 +65,21 @@ def validate_auth(method):
             print("Out of Attempts")
             raise last_except
         else:
-            return method(ref)
+            return method(ref, *args, **kwargs)
     return validate_auth_attempts
+
+
+"""
+Check if the Stream Link provides a Manifest that is accessible
+"""
+def validate_stream_link(stream_link):
+        try:
+            request_url = stream_link
+            r = requests.request("GET", request_url)
+            if str(r.status_code) == '200':
+                return True
+            else:
+                return False
+        except:
+            return False
+        

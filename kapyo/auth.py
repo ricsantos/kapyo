@@ -22,13 +22,10 @@ class AuthSession():
             self.import_credentials(credentials_path)
             self.login()
         else:
-            pass
-                
-               
-
+            pass          
+    
     def token_expires_at(self):
         return self.token_created_at + datetime.timedelta(seconds=self.token_expires_in)
-
 
     def is_token_expired(self):
         if self.token_expires_at():
