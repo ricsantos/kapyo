@@ -1,5 +1,7 @@
-from .setup import setup, create_empty_credentials_file, create_credentials_file
+import logging
 
 __author__ = """Ben Alexander"""
 __email__ = """benphillipalexander@gmail.com"""
-__version__ = '0.1'
+__version__ = '0.2'
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
